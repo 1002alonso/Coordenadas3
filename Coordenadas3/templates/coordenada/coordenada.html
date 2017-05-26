@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Coordenadas 3
+{% endblock %}
+
+{% block head %}
+<style>
+ 
+#contmapa {
+        background: rgba(0, 0, 0, 0) linear-gradient(#0d89bf 20%, #003951 100%) repeat scroll 0 0;
+        border: #2F353F 1px solid;
+    }
+    .hoverinfoedit {
+        background: #3F3F3F;
+        color: #FFF;
+        padding: 5px 10px;
+        font-family: 'Verdana';
+        font-size: 12px;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px;
+    }
+
+    
+
+tooltip {
+  position: absolute;
+  text-align: center;
+  width: 60px;
+  height: 12px;
+  padding: 8px;
+  font: 10px sans-serif;
+  background: #ddd;
+  pointer-events: none;
+}
+
+
+</style>
+{% endblock %}
+
+ {% block scripts %}
+    {% load static %}
+    <script src="{% static "js/d3.min.js" %}"></script>
+     <script src="{% static "js/d3.aux.js" %}"></script>
+    <script src="{% static "js/plugins/mapa/topojson.v0.min.js" %}"></script>
+   
+
+ {% endblock %}
+
+{% block content %}
+
+ <div class="col-xs-12 col-sm-12">
+       <svg id="contmapa" class="fondoMap" >   
+
+
+       <svg id="mapa1"  class="mapa1"></svg>
+
+       </svg>
+</div>
+
+<script>
+  var x = d3.scale.linear()
+    .domain([0, width])
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .domain([0, height])
+    .range([height, 0]);
+
+var zoom = d3.behavior.zoom()
+    .scaleExtent([1, 10])
+    .on("zoom", zoomed);
+    /*.scaleExtent([1, 10])*/
+    
+
+var width = 960,
+    height = 500;
+
+var cont_svg = d3.select("body").select("#contmapa")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("fill", "#fff");
+
+cont_svg.append("rect")
+    .attr("width", 250)
+    .attr("height", 55 - 1)
+    .style("color","black")
+    .attr("fill","#3F3F3F");
+
+
+cont_svg.append("text")
+      .attr("x","50")
+      .attr("y","50")
+      .text("hola");
+
+
+var svg = cont_svg.select("#mapa1")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("fill", "#2F353F")
+    .style("stroke", "#333")
+    .style("stroke-width", ".2px")
+    .call(zoom)
+    .on("mousemove", function(){
+               var coordinates=[0,0];
+               coordinates=d3.mouse(this);
+               var x=coordinates[0];
+               var y=coordinates[1];
+                
+               d3.select("#contmapa").select('text')
+                     .text(x);
+                    
+    }
+    
+
+    );
+    
+
+var fondorect=svg.append("rect")
+    .attr("width", width)
+    .attr("height", height)
+    .style("fill", "none")
+    .style("pointer-events", "all");
+  
+
+/*var tooltip=svg.append("tooltip");*/    
+var g = svg.append("g");
+
+
+
+
+
+var projection = d3.geo.mercator()
+    .scale(1200)
+    .center([-102.34034978813841, 24.012062015793])
+    .translate([960 / 2, 500 / 2]);
+
+
+/*d3.json("{% static "js/plugins/mapa/mex_states.json" %}", function(error, mx) {*/
+d3.json("{% static "js/plugins/mapa/mx_tj.json" %}", function(error, mx) {
+ /* svg.selectAll("path")
+    .data(topojson.object(mx, mx.objects.municipalities).geometries)
+    .enter().append("path")
+    .attr("d", d3.geo.path().projection(projection))
+    .attr("fill", "transparent")
+    .style("stroke", "#333")
+    .style("stroke-width", ".1px")
+    .attr("class", "muns");*/
+
+
+  
+  g.selectAll("path")
+    .data(topojson.object(mx, mx.objects.states).geometries)
+    .enter().append("path")
+    .attr("d", d3.geo.path().projection(projection))
+    .attr("fill", "#D1D1D1")
+    .style("stroke", "#333")
+     .style("stroke-width", ".5px");
+  }
+
+
+
+
+);
+
+
+
+
+
+function zoomed() {
+  svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+}
+
+
+
+
+
+function mouseover() {
+  svg.style("display", "inline");
+}
+
+function mousemove() {
+  svg.text(d3.event.pageX + ", " + d3.event.pageY);
+}
+
+function mouseout() {
+  svg.style("display", "none");
+}
+</script>
+{% endblock %}
+
+
+

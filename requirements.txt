@@ -1,0 +1,6 @@
+Django==1.10.5
+find-python==0.0.0
+psycopg2==2.6.2
+setupfiles==0.0.0
+site-packages==0.0.0
+Unipath==1.1

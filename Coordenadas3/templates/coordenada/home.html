@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Coordenadas 3
+{% endblock %}
+
+{% block head %}
+<style>
+    #contmapa {
+        background: rgba(0, 0, 0, 0) linear-gradient(#0d89bf 20%, #003951 100%) repeat scroll 0 0;
+        border: #2F353F 1px solid;
+    }
+
+    .hoverinfoedit {
+    /*    background: #3F3F3F;
+        color: #FFF;
+        padding: 5px 10px;
+        font-family: 'Verdana';
+        font-size: 12px;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px;*/
+    }
+</style>
+{% endblock %}
+
+ {% block scripts %}
+    {% load static %}
+    <script src="{% static "js/d3.min.js" %}"></script>
+    <script src="{% static "js/plugins/mapa/topojson.js" %}"></script>
+    <script src="{% static "js/plugins/mapa/datamaps.mex.js" %}"></script>
+ {% endblock %}
+
+{% block content %}
+
+  <div class="col-xs-12 col-sm-12">
+       <div id="contmapa" class="fondoMap" style="border:1px dotted blue; width: 100%; height: 100%"></div>
+         
+</div>
+
+
+<script>
+var width = 960,
+    height = 500;
+
+    var mapamx = new Datamap({
+        scope: 'mex',
+        element: document.getElementById('contmapa'),
+        responsive: true,
+        geographyConfig: {
+            popupOnHover: false,
+            highlightOnHover: false,
+            borderColor: '#878787',
+            borderWidth: 0.02
+        },
+        fills: {
+            'Visited': '#306596',
+            'neato': '#0fa0fa',
+            'Trouble': '#bada55',
+            'defaultFill': '#fff',
+            'lt50': 'rgba(0,244,244,0.9)',
+            'gtSur': '#00AD6A',
+            'gtMne': '#3A3A3A',
+            'gtMso': '#FFF',
+            'gtGas3': '#EDE13B ',
+            'gtAceite3': '#111111',
+            'colorVerde': '#003951'
+        },
+        data: {
+            '071': { fillKey: 'lt50' },
+            '001': { fillKey: 'gt50' }
+        },
+        setProjection: function (element) {
+
+            
+
+            var projection = d3.geo.mercator()
+              .center([-101.487312, 23.093680])
+              .scale(1200)
+              .translate([element.offsetWidth / 2, element.offsetHeight / 2]);
+             // .translate([element.offsetWidth / 2, element.offsetHeight / 2]);
+         
+
+            var path = d3.geo.path().projection(projection);
+            return { path: path, projection: projection };
+        },
+        done: function (datamap) {
+            datamap.svg.call(d3.behavior.zoom().on("zoom", redraw));
+            datamap.svg.on("mousemove",hola);
+
+            function redraw() {
+                datamap.svg.selectAll("g").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+            }
+
+
+         function hola(){
+             var coordinates=[0,0];
+               coordinates=d3.mouse(this);
+               var x=coordinates[0];
+               var y=coordinates[1];
+                
+               d3.select("#contmapa").select('text')
+                     .text(x +" "+y);
+         }
+       
+        }
+
+      
+    });
+
+
+
+
+
+
+
+
+ mapamx.bubbles([
+            { id: 'RSUR', title: 'Campos Terrestre', longitude: -92.896668, latitude: 18.390015, radius: .05, fillKey: 'gtSur', borderWidth: 0.01 },
+            { id: 'RMNE', title: 'Aguas Someras Noroeste', longitude: -92.233333, latitude: 19.375, radius: .05, fillKey: 'gtMne', borderWidth: 0.01 },
+            { id: 'RMSO', title: 'Aguas Someras Suroeste', longitude: -92.258333, latitude:19.375, radius: .05, fillKey: 'gtMso', borderWidth: 0.01 },
+            { id: 'SAMARIA-A', title: 'Corredor Aceite', longitude: -93.32, latitude: 18.40, radius: .08, fillKey: 'gtAceite3', borderWidth: 0.01, 'fillOpacity': 09 },
+            { id: 'SAMARIA-G', title: 'Corredor Gas', longitude: -93.1869787, latitude: 18.4298922, radius: .08, fillKey: 'gtGas3', borderWidth: 0.01, 'fillOpacity': 09 },
+            { id: 'BELLOTA-A', title: 'Corredor Aceite', longitude: -92.8983089, latitude: 18.3899488, radius: .08, fillKey: 'gtAceite3', borderWidth: 0.01, 'fillOpacity': 09 },
+            { id: 'BELLOTA-G', title: 'Corredor Gas', longitude: -153.3, latitude: 22.4, radius: 1, fillKey: 'gtGas3', borderWidth: 0.01, 'fillOpacity': 09 },
+            { id: '5P-A', title: 'Corredor Aceite', longitude: -154.1, latitude: 21.7, radius: 1, fillKey: 'gtAceite3', borderWidth: 0.01, 'fillOpacity': 09 },
+            { id: '5P-G', title: 'Corredor Gas', longitude: -153.7, latitude: 21.7, radius: 1, fillKey: 'gtGas3', borderWidth: 0.01, 'fillOpacity': 09 },
+            { id: 'MACUSPANA-A', title: 'Corredor Aceite', longitude: -152.6, latitude: 21.2, radius: 1, fillKey: 'gtAceite3', borderWidth: 0.01, 'fillOpacity': 09 },
+            { id: 'MACUSPANA-G', title: 'Corredor Gas', longitude: -118.904198, latitude: 14.902371, radius: 1, fillKey: 'gtGas3', borderWidth: 0.01, 'fillOpacity': 09 }
+    ],
+          {
+              popupTemplate: function (geo, data) {
+                  return '<div class="hoverinfoedit">' + data.title + ''
+              }
+          }
+          );
+
+mapamx.graticule();
+
+mapamx.poligono([
+            { id: 'RSUR', title: 'Campos Terrestre', longitude: -92.233333, latitude: 19.383333, radius: .05, fillKey: 'gtSur', borderWidth: 0.01 },
+            { id: 'RMNE', title: 'Aguas Someras Noroeste', longitude: -92.233333, latitude: 19.375, radius: .05, fillKey: 'gtMne', borderWidth: 0.01 },
+            { id: 'RMSO', title: 'Aguas Someras Suroeste', longitude: -92.258333, latitude:19.375, radius: .05, fillKey: 'gtMso', borderWidth: 0.01 },
+            { id: 'SAMARIA-A', title: 'Corredor Aceite', longitude: -152.5, latitude: 22.1, radius: 1, fillKey: 'gtAceite3', borderWidth: 0.01, 'fillOpacity': 09 },
+            { id: 'SAMARIA-G', title: 'Corredor Gas', longitude: -152.1, latitude: 22.1, radius: 1, fillKey: 'gtGas3', borderWidth: 0.01, 'fillOpacity': 09 },
+            { id: 'BELLOTA-A', title: 'Corredor Aceite', longitude: -153.7, latitude: 22.4, radius: 1, fillKey: 'gtAceite3', borderWidth: 0.01, 'fillOpacity': 09 },
+            { id: 'BELLOTA-G', title: 'Corredor Gas', longitude: -153.3, latitude: 22.4, radius: 1, fillKey: 'gtGas3', borderWidth: 0.01, 'fillOpacity': 09 },
+            { id: '5P-A', title: 'Corredor Aceite', longitude: -154.1, latitude: 21.7, radius: 1, fillKey: 'gtAceite3', borderWidth: 0.01, 'fillOpacity': 09 },
+            { id: '5P-G', title: 'Corredor Gas', longitude: -153.7, latitude: 21.7, radius: 1, fillKey: 'gtGas3', borderWidth: 0.01, 'fillOpacity': 09 },
+            { id: 'MACUSPANA-A', title: 'Corredor Aceite', longitude: -152.6, latitude: 21.2, radius: 1, fillKey: 'gtAceite3', borderWidth: 0.01, 'fillOpacity': 09 },
+            { id: 'MACUSPANA-G', title: 'Corredor Gas', longitude: -118.904198, latitude: 14.902371, radius: 1, fillKey: 'gtGas3', borderWidth: 0.01, 'fillOpacity': 09 }
+    ],
+          {
+              popupTemplate: function (geo, data) {
+                  return '<div class="hoverinfoedit">' + data.title + ''
+              }
+          }
+          );
+
+//**** Probando coordenadas en poligonos */
+/*
+var position=[];
+
+var scale=[];
+scale[0]=0.0031671379765976604;
+scale[1]=0.0018168370317667582;
+
+ var translate=[]
+ translate[0]=-118.366826;
+ translate[1]=14.537305;
+
+poly = [{"x":-92.233333, "y":19.383333},
+        {"x":-92.233333,"y":19.375},
+        {"x":-92.258333,"y":19.375}];
+
+
+mapamx.selectAll("polygon")
+    .data([poly])
+    .enter().append("polygon")
+    .attr("points",function(d) { 
+        return d.map(function(d) {
+            position[0]=d.x;
+            position[1]=d.y;
+
+            position=transformPoint(scale, translate, position);
+
+            return [scaleX(position[0]),scaleY(position[1])].join(",");
+        }).join(" ");
+    })
+    .attr("stroke","black")
+    .attr("stroke-width",2);*/
+
+
+
+    d3.select('svg').append("text")
+      .attr("x","50")
+      .attr("y","50")
+      .text("hola");
+
+
+/*"scale":[0.0031671379765976604,0.0018168370317667582],"translate":[-178.123152,18.948267*/
+/*
+mapamx.arc([
+  {
+      origin: {
+          latitude:  32.548021,
+          longitude:-117.125891
+      },
+      destination: {
+          latitude: 17.269293,
+          longitude: -90.983444
+      }
+  }
+],  {strokeWidth: 1, arcSharpness: 1.4});
+  /*  d3.select('svg')
+      .on("mousemove", function(){
+               var coordinates=[0,0];
+               coordinates=d3.mouse(this);
+               var x=coordinates[0];
+               var y=coordinates[1];
+                
+               d3.select("#contmapa").select('text')
+                     .text(x);
+                    
+    })*/
+
+
+
+
+
+
+
+   function transformPoint(scale, translate, position) {
+    position = position.slice();
+    position[0] = position[0] * scale[0] + translate[0];
+    position[1] = position[1] * scale[1] + translate[1];
+     
+    return position;
+}
+
+function transformPointReversed(scale, translate, position) {
+    position = position.slice();
+    position[0] = (position[0] - translate[0])/(scale[0]);
+    position[1] = (position[1] - translate[1])/(scale[1]); 
+    return position;
+}
+
+//alert(transformPoint(scale, translate, position));
+</script>
+{% endblock %}
+
+
+
